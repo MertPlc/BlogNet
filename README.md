@@ -7,6 +7,7 @@
 * https://startbootstrap.com/previews/blog-home
 * https://startbootstrap.com/template/blog-post
 * https://adminlte.io/
+* https://picsum.photos/id/237/600/200
 
 ## Useful Links
 

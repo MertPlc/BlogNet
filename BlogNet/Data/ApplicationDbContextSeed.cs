@@ -31,6 +31,7 @@ namespace BlogNet.Data
             var cat1 = new Category()
             {
                 Name = "General",
+                Slug = "general",
                 Posts = new List<Post>()
                 {
                     new Post
@@ -53,7 +54,85 @@ namespace BlogNet.Data
                 }
             };
 
-            context.Categories.Add(cat1);
+            var cat2 = new Category()
+            {
+                Name = "Life Style",
+                Slug = "life-style",
+                Posts = new List<Post>()
+                {
+                    new Post
+                    {
+                        Title = "Remote Work",
+                        Content = "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+                        PhotoPath = "sample-photo-3.jpg",
+                        Slug = "remote-work",
+                        Author = author
+                    },
+
+                    new Post
+                    {
+                        Title = "Finding Peace in Nature",
+                        Content = "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+                        PhotoPath = "sample-photo-4.jpg",
+                        Slug = "finding-peace-in-nature",
+                        Author = author
+                    }
+                }
+            };
+
+            var cat3 = new Category()
+            {
+                Name = "Travel",
+                Slug = "travel",
+                Posts = new List<Post>()
+                {
+                    new Post
+                    {
+                        Title = "Getting Away From The City",
+                        Content = "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+                        PhotoPath = "sample-photo-5.jpg",
+                        Slug = "getting-away-from-the-city",
+                        Author = author
+                    },
+
+                    new Post
+                    {
+                        Title = "My Summer House",
+                        Content = "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+                        PhotoPath = "sample-photo-6.jpg",
+                        Slug = "my-summer-house",
+                        Author = author
+                    }
+                }
+            };
+
+            var cat4 = new Category()
+            {
+                Name = "Nature",
+                Slug = "nature",
+                Posts = new List<Post>()
+                {
+                    new Post
+                    {
+                        Title = "A Green Life",
+                        Content = "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+                        PhotoPath = "sample-photo-7.jpg",
+                        Slug = "a-green-life",
+                        Author = author
+                    },
+
+                    new Post
+                    {
+                        Title = "Welcome Autumn",
+                        Content = "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+                        PhotoPath = "sample-photo-8.jpg",
+                        Slug = "welcome-autumn",
+                        Author = author
+                    }
+                }
+            };
+
+            context.Categories.AddRange(cat1, cat2, cat3, cat4);
             await context.SaveChangesAsync();
         }
     }
