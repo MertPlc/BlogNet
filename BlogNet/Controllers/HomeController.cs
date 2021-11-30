@@ -25,13 +25,22 @@ namespace BlogNet.Controllers
 
         [Route("c/{slug}")]
         [Route("")]
-        public IActionResult Index(string slug, int pn = 1)
+        public IActionResult Index(string slug, string q, int pn = 1)
         {
             ViewBag.Slug = slug;
             IQueryable<Post> posts = _context.Posts;
+            Category category = null;
 
             if (!string.IsNullOrEmpty(slug))
+            {
                 posts = posts.Where(x => x.Category.Slug == slug);
+                category = _context.Categories.FirstOrDefault(x => x.Slug == slug);
+            }
+
+            if (!string.IsNullOrEmpty(q))
+            {
+                posts = posts.Where(x => x.Title.Contains(q) || x.Content.Contains(q));
+            }
 
             int totalItems = posts.Count();
             int totalPages = (int)Math.Ceiling((decimal)totalItems / POSTS_PER_PAGE);
@@ -40,6 +49,7 @@ namespace BlogNet.Controllers
 
             var vm = new HomeViewModel()
             {
+                Category = category,
                 Posts = postsList,
                 PaginationInfo = new PaginationViewModel()
                 {
@@ -51,8 +61,9 @@ namespace BlogNet.Controllers
                     TotalPages = totalPages,
                     ItemsPerPage = POSTS_PER_PAGE,
                     ResultsStart = (pn - 1) * POSTS_PER_PAGE + 1,
-                    ResultsEnd = (pn -1) * POSTS_PER_PAGE + postsList.Count
-                }
+                    ResultsEnd = (pn - 1) * POSTS_PER_PAGE + postsList.Count
+                },
+                SearchCriteria = q
             };
 
             return View(vm);
