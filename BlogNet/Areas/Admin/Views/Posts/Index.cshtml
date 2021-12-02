@@ -68,6 +68,12 @@
 
 @section Scripts {
     <script>
+        @{ var message = Context.Request.Query["message"]; }
+        @if (Context.Request.Query["message"].Count > 0)
+        {
+            <text>toastr.success("The post has been deleted successfully.");</text>
+        }
+
         $("#tblPosts").DataTable({
             autoWidth: false,
             responsive: true
