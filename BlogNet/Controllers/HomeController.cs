@@ -28,7 +28,7 @@ namespace BlogNet.Controllers
         public IActionResult Index(string slug, string q, int pn = 1)
         {
             ViewBag.Slug = slug;
-            IQueryable<Post> posts = _context.Posts;
+            IQueryable<Post> posts = _context.Posts.Where(x => x.IsPublished);
             Category category = null;
 
             if (!string.IsNullOrEmpty(slug))

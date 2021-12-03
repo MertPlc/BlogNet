@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BlogNet.Attributes;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace BlogNet.Areas.Admin.Models
 
         public bool IsPublished { get; set; } = true;
 
+        [PostPhoto(MaxSizeMB = 1)]
         public IFormFile FeaturedImage { get; set; }
 
         [Required]

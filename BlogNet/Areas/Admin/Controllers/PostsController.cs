@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace BlogNet.Areas.Admin.Controllers
@@ -18,12 +19,14 @@ namespace BlogNet.Areas.Admin.Controllers
         private readonly ApplicationDbContext _db;
         private readonly IWebHostEnvironment _env;
         private readonly UrlService _urlService;
+        private readonly PhotoService _photoService;
 
-        public PostsController(ApplicationDbContext db, IWebHostEnvironment env, UrlService urlService)
+        public PostsController(ApplicationDbContext db, IWebHostEnvironment env, UrlService urlService, PhotoService photoService)
         {
             _db = db;
             _env = env;
             _urlService = urlService;
+            _photoService = photoService;
         }
 
         public IActionResult Index()
@@ -42,23 +45,11 @@ namespace BlogNet.Areas.Admin.Controllers
             if (post == null)
                 return NotFound();
 
-            DeletePhoto(post.PhotoPath);
+            _photoService.DeletePhoto(post.PhotoPath);
             _db.Posts.Remove(post);
             _db.SaveChanges();
 
             return RedirectToAction("Index", new { message = "deleted" });
-        }
-
-        private void DeletePhoto(string photoPath)
-        {
-            if (string.IsNullOrEmpty(photoPath)) return;
-
-            try
-            {
-                var deletePath = Path.Combine(_env.WebRootPath, "uploads", photoPath);
-                System.IO.File.Delete(deletePath);
-            }
-            catch (Exception) { }
         }
 
         public IActionResult New()
@@ -78,7 +69,19 @@ namespace BlogNet.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                // save data and redirect to index
+                Post post = new Post()
+                {
+                    AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier),   // giriş yapan kişinin cookie'sinden id'sini çeker
+                    CategoryId = vm.CategoryId.Value,
+                    Content = vm.Content,
+                    Title = vm.Title,
+                    Slug = _urlService.URLFriendly(vm.Slug),  //slug bozulduysa tekrar düzeltir
+                    PhotoPath = _photoService.SavePhoto(vm.FeaturedImage),
+                    //IsPublished = vm.IsPublished
+                };
+                _db.Add(post);
+                _db.SaveChanges();
+                return RedirectToAction(nameof(Index));   // "Index" yazmak yerıne name of Index'i oto stringe cevirir
             }
 
             vm.Categories = _db.Categories

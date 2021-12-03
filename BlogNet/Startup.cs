@@ -38,6 +38,7 @@ namespace BlogNet
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddSingleton<UrlService>();
+            services.AddScoped<PhotoService>();
             services.AddControllersWithViews();
         }
 
