@@ -77,11 +77,62 @@ namespace BlogNet.Areas.Admin.Controllers
                     Title = vm.Title,
                     Slug = _urlService.URLFriendly(vm.Slug),  //slug bozulduysa tekrar düzeltir
                     PhotoPath = _photoService.SavePhoto(vm.FeaturedImage),
-                    //IsPublished = vm.IsPublished
+                    IsPublished = vm.IsPublished
                 };
                 _db.Add(post);
                 _db.SaveChanges();
                 return RedirectToAction(nameof(Index));   // "Index" yazmak yerıne name of Index'i oto stringe cevirir
+            }
+
+            vm.Categories = _db.Categories
+                .OrderBy(x => x.Name)
+                .Select(x => new SelectListItem(x.Name, x.Id.ToString()))
+                .ToList();
+
+            return View(vm);
+        }
+
+        public IActionResult Edit(int id)
+        {
+            Post post = _db.Posts.Find(id);
+
+            if (post == null) return NotFound();
+
+            var vm = new EditPostViewModel()
+            {
+                Id = post.Id,
+                CategoryId = post.CategoryId,
+                Content = post.Content,
+                IsPublished = post.IsPublished,
+                Slug = post.Slug,
+                Title = post.Title,
+                Categories = _db.Categories
+                    .OrderBy(x => x.Name)
+                    .Select(x => new SelectListItem(x.Name, x.Id.ToString()))
+                    .ToList()
+            };
+            return View(vm);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Edit(EditPostViewModel vm)
+        {
+            if (ModelState.IsValid)
+            {
+                Post post = _db.Posts.Find(vm.Id);
+                if (post == null) return NotFound();
+
+                post.CategoryId = vm.CategoryId.Value;
+                post.Content = vm.Content;
+                post.Title = vm.Title;
+                post.Slug = _urlService.URLFriendly(vm.Slug);
+                if (vm.FeaturedImage != null)
+                    post.PhotoPath = _photoService.SavePhoto(vm.FeaturedImage);
+                post.IsPublished = vm.IsPublished;
+                post.ModifiedTime = DateTime.Now;
+                _db.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
             }
 
             vm.Categories = _db.Categories
