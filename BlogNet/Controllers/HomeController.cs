@@ -1,5 +1,6 @@
 ﻿using BlogNet.Data;
 using BlogNet.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace BlogNet.Controllers
@@ -72,7 +74,14 @@ namespace BlogNet.Controllers
         [Route("p/{slug}")]
         public IActionResult ShowPost(string slug)
         {
-            return View(_context.Posts.Include(x => x.Category).FirstOrDefault(x => x.Slug == slug));
+            return View(_context.Posts
+                .Include(x => x.Category)
+                .Include(x => x.Comments)
+                    .ThenInclude(x => x.Author)  //her yorumun yazarını dahil et
+                .Include(x => x.Comments)
+                    .ThenInclude(x => x.Children)   //commentlerin cocuklarını dahil et
+                        .ThenInclude(x => x.Author)  // cocukların da yazarlarını dahil et
+                .FirstOrDefault(x => x.Slug == slug));
         }
 
         public IActionResult Privacy()
@@ -84,6 +93,25 @@ namespace BlogNet.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpPost, Authorize]
+        public IActionResult Comment(int postId, string content, int? parentId, string slug)
+        {
+            content = content.Trim();
+            if (content == "") return BadRequest();
+            _context.Add(new Comment()
+            {
+                AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier),   // giriş yapan kişinin Id'si
+                CreatedTime = DateTime.Now,
+                ParentId = parentId,
+                PostId = postId,
+                Content = content,
+                IsPublished = true
+            });
+            _context.SaveChanges();
+
+            return RedirectToAction("ShowPost", new { slug, message = "received" });
         }
     }
 }
