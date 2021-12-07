@@ -22,14 +22,20 @@
     </section>
 </article>
 <!-- Comments section-->
-<section class="mb-5">
+<section class="mb-5" id="comments">
     <div class="card bg-light">
         <div class="card-body">
+            @if (Context.Request.Query["message"] == "received")
+            {
+                <div class="alert alert-success">
+                    Your comment has been received succesfully.
+                </div>
+            }
             <!-- Comment form-->
             @if (!User.Identity.IsAuthenticated)
             {
                 <div class="alert alert-warning text-center">
-                    Please <a asp-area="Identity" asp-page="/Account/Login" class="link-warning">login</a> or <a asp-area="Identity" asp-page="/Account/Register" class="link-warning">register</a> to post a comment!
+                    Please <a asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="@Context.Request.Path" class="link-warning">login</a> or <a asp-area="Identity" asp-page="/Account/Register" asp-route-ReturnUrl="@Context.Request.Path" class="link-dark">register</a> to post a comment!
                 </div>
             }
             else
@@ -39,7 +45,7 @@
                     <input type="hidden" name="Slug" value="@Model.Slug" />
                     <input type="hidden" name="ParrentId" value="" />
                     <div class="col">
-                        <textarea name="content" class="form-control" rows="3" placeholder="Leave a comment!" required></textarea>
+                        <textarea id="commentContent" name="content" class="form-control" rows="3" placeholder="Leave a comment!"></textarea>
                     </div>
                     <div class="col-auto ps-0">
                         <button class="btn btn-primary">Submit</button>
@@ -84,4 +90,15 @@
         int indexOfAt = email.IndexOf("@");
         return email.Substring(0, indexOfAt);
     }
+}
+
+@section Scripts {
+    <script>
+        var commentContent = document.getElementById("commentContent");
+
+        commentContent.oninput = function () {
+            var content = commentContent.value.trim();
+            commentContent.setCustomValidty(content ? "" : "Please fill this area.");
+        };
+    </script>
 }
