@@ -23,5 +23,15 @@ namespace BlogNet.Areas.Admin.Controllers
                 .OrderByDescending(x => x.CreatedTime)
                 .ToList());
         }
+
+        [HttpPost]
+        public IActionResult SetStatus(int commentId, bool isPublished)
+        {
+            Comment comment = _db.Comments.Find(commentId);
+            if (comment == null) return NotFound();
+            comment.IsPublished = isPublished;
+            _db.SaveChanges();
+            return Ok();
+        }
     }
 }
