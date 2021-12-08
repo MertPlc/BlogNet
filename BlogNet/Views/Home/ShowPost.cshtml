@@ -40,10 +40,16 @@
             }
             else
             {
+                <div id="replying-to-box" class="d-none border bg-white text-secondary p-2 mb-2 fst-italic">
+                    <i class="fas fa-reply"></i>
+                    Replying to <span id="reply-to"></span>
+                    <a id="cancel-replying" href="#" class="float-end btn-close"></a>
+                </div>
+
                 <form id="frmComment" asp-controller="Home" asp-action="Comment" class="row mb-4 align-items-end" method="post">
                     <input type="hidden" name="PostId" value="@Model.Id" />
                     <input type="hidden" name="Slug" value="@Model.Slug" />
-                    <input type="hidden" name="ParrentId" value="" />
+                    <input type="hidden" id="ParrentId" name="ParrentId" value="" />
                     <div class="col">
                         <textarea id="commentContent" name="content" class="form-control" rows="3" placeholder="Leave a comment!"></textarea>
                     </div>
@@ -52,7 +58,7 @@
                     </div>
                 </form>
             }
-            @foreach (Comment comment in Model.Comments)
+            @foreach (Comment comment in Model.Comments.Where(x => x.ParentId == null))
             {
                 <!-- Comment with nested comments-->
                 <div class="d-flex mb-4">
@@ -63,9 +69,14 @@
                     <div class="ms-3 flex-grow-1">
                         <div class="fw-bold">@BeforeAt(comment.Author.UserName)</div>
                         @comment.Content
-                        <a href="#" data-reply-id="@comment.Id">Reply</a>
-
-
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a href="#comments" data-reply-id="@comment.Id" data-reply-to="@BeforeAt(comment.Author.UserName)">Reply</a>
+                        }
+                        else
+                        {
+                            <a tabindex="0" class="c-pointer" data-reply-id="@comment.Id" data-reply-to="@BeforeAt(comment.Author.UserName)" data-bs-toogle="popover" data-bs-trigger="focus" data-bs-content="Please login or register to post a comment.">Reply</a>
+                        }
 
                         @foreach (Comment subcomment in comment.Children)
                         {
@@ -94,11 +105,28 @@
 
 @section Scripts {
     <script>
+        $("[data-reply-id]").click(function () {
+            var replyId = $(this).data("reply-id");
+            var replyTo = $(this).data("reply-to");
+            $("#reply-to").text("@@" + replyTo);
+            $("#ParrentId").val(replyId);
+            $("#replying-to-box").removeClass("d-none");
+        });
+
+        $("#cancel-replying").click(function (event) {
+            event.preventDefault();
+            $("#replying-to-box").addClass("d-none");
+            $("#reply-to").text("");
+            $("#ParrentId").val("");
+        });
+
         var commentContent = document.getElementById("commentContent");
 
-        commentContent.oninput = function () {
-            var content = commentContent.value.trim();
-            commentContent.setCustomValidty(content ? "" : "Please fill this area.");
-        };
+        if (commentContent) {
+            commentContent.oninput = function () {
+                var content = commentContent.value.trim();
+                commentContent.setCustomValidty(content ? "" : "Please fill this area.");
+            };
+        }
     </script>
 }

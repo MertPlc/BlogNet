@@ -95,7 +95,7 @@ namespace BlogNet.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpPost, Authorize]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
         public IActionResult Comment(int postId, string content, int? parentId, string slug)
         {
             if (string.IsNullOrWhiteSpace(content)) return BadRequest();
